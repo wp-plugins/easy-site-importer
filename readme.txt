@@ -8,13 +8,13 @@ Requires at least: 3.8
 Tested up to: 4.1
 Stable tag: 1.0
 
-Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content from another site.
+Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content from any other site.
 
 == Description ==
 
-Easy site importer makes the process of migrating from any web site a much simplier, easy and less time consuming process.
+Easy site importer makes the process of migrating from any web site a much simpler, easy and less time consuming process.
 Simply enter the URL of a site and Easy Site Importer will automatically scan the target website to find sections of the site which have content to be scraped.
-Specify which main HTML content block contains the main content for the site and if required an additonal start and end string within this main content block.
+Specify which main HTML content block contains the main content for the site and if required an additional start and end string within this main content block.
 
 * Automatically scan the site to identify the main content blocks for scraping
 * Spider the site automatically to find all the pages with content
@@ -32,12 +32,22 @@ Specify which main HTML content block contains the main content for the site and
 
 
 == Frequently Asked Questions ==
+
 = How do I spider more than 100 pages on a site =
 It is possible to increase this limit depending on how responsive the site is, and if your web server has its settings to not time out.
-Increase the limit setting within the spider_site function, You may need to increase the php exectution time within php.ini or by adding the line set_time_limit(200); 
+Increase the limit setting within the spider_site function, You may need to increase the php execution time within php.ini or by adding the line set_time_limit(200); 
 
+== Screenshots ==
+
+1. Simply enter the web URL of the site you would like to copy and click update to automatically scan the sites HTML structure for places where you main content may be held. In addition a start and end piece of html can be entered to properly identify it
+2. Sample scrape settings for a typical site
+3. Filter the HTML when it is imported into the site to make adjustments to the HTML
+4. Preview the filtered HTML so you can see which bits are being replaced or removed
+5. Import the images into the wordpress media library and amend the HTML to the new path. You can also import the titles and meta description into Yoast if it is installed
+6. Review the pages before importing them into wordpress
 
 == Changelog ==
 
-1.0.0
+0.9.0
+
 * Initial release.
