@@ -1,4 +1,5 @@
 .green{
+	
 	background-color: #86A93A;
 	color: #fff;
 }
@@ -10,15 +11,117 @@
 	background-color: #8C001A;
 	color: #fff;
 }
+
+.grey{
+	background-color: #eee;
+}
 .green a, .red a{
 	color: #fff;
 }
-
 .white{
 	background-color: #fff;
-	text-align: center;
+}
+.section{
 	border: 1px solid #000;
 	border-width: 1px 0;
+}
+.center{
+	text-align: center;
+}
+.top{
+	vertical-align: top;
+}
+.left{
+	float: left;
+}
+.right{
+	float: right;
+}
+
+
+/* main admin area*/
+
+#esi_main{
+	position: relative;
+}
+
+#esi_main form {
+	background-color: #fff;
+}
+
+#esi_main h3 {
+	border: 10px solid #eee;
+	border-width: 15px 0 0 0;
+	background-color: #fff;
+	padding: 10px;
+	font-size: 140%;
+	margin: 0;
+}
+
+#esi_main form p{
+	margin-left: 10px;
+}
+
+#esi_main th{
+	text-align: left;
+}
+
+a.disabled{
+	pointer-events: none;
+	cursor: default;
+	color: #ddd;
+}
+
+#tutor{
+	position: absolute;
+	right: 20px;
+	top: 20px;
+}
+
+#blackboard{
+	position:fixed;
+	right: 90px;
+	top: 110px;
+	background: #fff url("/wp-content/plugins/easy-site-importer/img/blackboard.png") no-repeat 0 0;
+	width: 170px;
+	height: 150px;
+	padding:  0 15px;
+	color: #fff;
+}
+#blackboard img{
+	margin: 0 auto;
+	display:block;
+}
+
+
+/* results */
+
+.esi_table{
+	margin: 0 auto;
+	display: inline-block;
+}
+.esi_table td, .esi_table th{
+	padding: 7px 15px;
+}
+.esi_table tr{
+	background-color: #eee;
+}
+.esi_table tr:nth-child(even) {
+	background-color: #ccc;
+}
+
+#results_table{
+	border-collapse: collapse;
+}
+
+#results_table th{
+	background-color: #eee;
+	border-top: 4px solid #aaa;
+	color: #333;
+	padding: 15px;
+}
+#results_table td{
+	padding: 7px;
 }
 
 td.red button{
@@ -27,25 +130,81 @@ td.red button{
 
 #formatted_html{
 	background: #fff;
+	padding: 5px 10px 10px;
 }
 
+.form-table td span{
+	background-color: #fff;
+	border: 1px solid #eee;
+	border-width: 0 0 0 4px;
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+	padding: 4px;
+	width: 238px;
+}
+.form-table td span.updated{
+	border-color: #86A93A;;
+}
+.form-table td span.error{
+	border-color: #8C001A;
+}
+.form-table td:nth-child(2){
+	width: 350px;
+}
+
+.form-table td, .form-table th{
+	padding: 9px ;
+	margin-bottom: 0;
+}
+
+td .updated, td .error{
+	clear: left;
+	float: left;
+}
+.form-table td input.extra{
+	float: left;
+	margin: 0 0 0 15px;
+}
+td label{
+	font-weight: 600;
+	color: #222;
+	clear: left;
+	float: left;
+	min-width: 170px;
+}
+
+/* Popup boxes */
+
+#loading{
+	display:    none;
+	position:   fixed;
+	z-index:    1000;
+	top:        0;
+	left:       0;
+	height:     100%;
+	width:      100%;
+	background: rgba( 255, 255, 255, .8 ) url('/wp-content/plugins/easy-site-importer/img/loading.gif') 50% 50% no-repeat;
+}
+
+#loading p{
+	width: 170px;
+	height: 75px;
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	text-align: center;
+	font-weight: bold;
+	font-size: 190%;
+	
+}
 img.close{
 	position: fixed;
 	right: 24%;
 	top: 24%;
 	z-index: 11000;
 	display:none;
-}
-
-.left{
-	float: left;
-}
-.right{
-	float: right;
-}
-
-td{
-	padding: 5px 7px;
 }
 
 .esi_input{
