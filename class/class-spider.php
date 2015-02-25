@@ -2,7 +2,7 @@
 /**
 * Class to Spider and scape a site
 * @package Site Importer
-* @version 0.9
+* @version 1.0
 */
 
 class spider{	
@@ -90,6 +90,11 @@ class spider{
 	* @var array The maximum depth within the page structure to crawl
 	*/
 	var $max_depth = 99;
+	
+	/**
+	* @var string The current Indent for the processed HTML
+	*/
+	var $current_page = '';
 
 	/**
 	* @var array The parameters seting how the scrape will work
@@ -388,6 +393,9 @@ class spider{
 	* @return string The main container block of HTML 
 	*/
 	function get_main_html_block( $page_HTML , $main_block, $page){
+		if ($page_HTML==''){
+			print 'Unable to find html for page ('.$page.')';
+		}
 		$page_HTML=preg_replace("<!--(?!<!)[^\[>].*?-->",'',$page_HTML);
 				
 		// Locate main html block
@@ -416,7 +424,11 @@ class spider{
 	* @param string $page_HTML The the HTML page
 	* @return boolean set to true if the page was able to be scraped
 	*/
-	function scrape_page( $page,$page_HTML ){
+	function scrape_page( $page, $page_HTML ){
+		$this->current_page=$page;
+		if ($page_HTML==''){
+			print 'Unable to find html for page ('.$page.')';
+		}
 		$head_HTML=substr($page_HTML,0, strpos($page_HTML,'</head>'));
 		file_put_contents('.head.htm',$head_HTML);
 		preg_match("/\<title\>(.*)\<\/title\>/",$head_HTML,$title);
@@ -468,6 +480,99 @@ class spider{
 	}
 	
 	
+	
+	/* Function to the process the attributes for a particular html element
+	* @param array The list of the attributes
+	* @param string The element which is being proccessed
+	* @param string The type of output required eg. HTML
+	* @return The formatted attributes for the html
+	*/
+	function process_attributes($attribute_array, $element, $output){
+		$atts='';
+		$uploads = wp_upload_dir();
+		foreach($attribute_array as $attribute ){				
+			if ( $element == 'img' && $attribute->name == 'src' ){
+				$path_parts = pathinfo($attribute->value);
+				$new_file_name=$uploads['path'].'/'.$path_parts['basename'];
+				$new_file_url=$uploads['url'].'/'.$path_parts['basename'];
+				if ( (substr($attribute->value, 0, strlen($this->root)) == $this->root)||($attribute->value[0] == '/')||($attribute->value[0] == '.') ){
+					// local value
+					if ( $this->scrape_params['importLocal'] ){
+						if($output!='HTML' ){
+							$atts.=' '.$attribute->name.'="<span class="green">'.$new_file_url.'</span>"';
+						}else{
+							$atts.=' '.$attribute->name.'="'.$new_file_url.'"';
+						}
+						// This will deal with the paths of the page having '.' or '..' and will deal with images which have them at the start of their path
+						if (strpos($attribute->value,'..') !== false) {
+							$parts=parse_url($this->current_page);							
+							$dirs=explode('/',str_replace('//','/',$parts['path']));
+							array_pop($dirs);
+							foreach($dirs as $dir){
+								if ($dir!='.'){
+									if ($dir=='..'){
+										if (count($dirs2)>0){
+											array_pop($dirs2);
+										}
+									}else{
+										$dirs2[]=$dir;
+									}
+								}
+							}
+							$dirs=array_reverse($dirs2);
+							$image_paths=array_reverse(str_replace('//','/',explode('/',$attribute->value)));
+							$source='';
+							foreach($image_paths as $image_path){
+								if ($image_path=='..'){
+									$source=array_pop($dirs).'/'.$source;
+								}else{
+									if ($source==''){
+										$source=rawurlencode($image_path);
+									}else{
+										$source=rawurlencode($image_path).'/'.$source;
+									}
+								}
+							}	
+						}else{
+							$source=str_replace(array('./','//','p:/'),array('/','/','p://'),$attribute->value);
+						}
+						
+						$this->images_copy[$new_file_name]=array('source' => $source, 'destination' => $new_file_name, 'type' => 'local');
+					}else{
+						$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
+					}
+				}else{
+					// remote value
+					if ( $this->scrape_params['importRemote'] ){
+						if($output!='HTML' ){
+							$atts.=' '.$attribute->name.'="<span class="green">'.$new_file_url.'</span>"';
+						}else{
+							$atts.=' '.$attribute->name.'="'.$new_file_url.'"';
+						}
+						$this->images_copy[$new_file_name]=array('source' => $attribute->value, 'destination' => $new_file_name, 'type' => 'remote');
+					}else{
+						$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
+					}	
+				}
+			}elseif ( ($this->scrape_params['replaceDomain'] == '1')&&( $attribute->name == 'href' || $attribute->name == 'src') ){
+				// Replace Domain name with /
+				if($output!='HTML' ){
+					$atts.=' '.$attribute->name.'="'.str_replace($this->root,'<span class="red">'.$this->root.'</span>',$attribute->value).'"';
+				}else{
+					$atts.=' '.$attribute->name.'="'.str_replace($this->root,'',$attribute->value).'"';
+				}
+			}else{
+				if ( in_array($attribute->name,$this->scrape_params['stripAttributes']) ){
+					if($output!='HTML' ){
+						$atts.='<span class="red"> '.$attribute->name.'="'.$attribute->value.'"</span>';
+					}
+				}else{
+					$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
+				}
+			}		
+		}
+		return $atts;
+	}
 	
 	/* Recursive function to walk through the HTML
 	* @param string $node The DOM node to process
@@ -523,60 +628,8 @@ class spider{
 		}else{
 			$self_closing_slash='';
 		}
-		$uploads = wp_upload_dir();
 		if ( isset($children)){
-			$atts='';
-			foreach($node->attributes as $attribute ){				
-				if ( ($this->scrape_params['stripCSS'] == '1')&&($attribute->name == 'style') ){
-					// Strip inline style out
-					if($output!='HTML' ){
-						$atts.='<span class="red"> '.$attribute->name.'="'.$attribute->value.'"</span>';
-					}
-				}elseif ( ($this->scrape_params['stripClass'] == '1')&&($attribute->name == 'class') ){
-					// Strip Classes
-					if($output!='HTML' ){
-						$atts.='<span class="red"> '.$attribute->name.'="'.$attribute->value.'"</span>';
-					}
-				}elseif ( $node->nodeName == 'img' && $attribute->name == 'src' ){
-					$path_parts = pathinfo($attribute->value);
-					$new_file_name=$uploads['path'].'/'.$path_parts['basename'];
-					$new_file_url=$uploads['url'].'/'.$path_parts['basename'];
-					if ( (substr($attribute->value, 0, strlen($this->root)) == $this->root)||($attribute->value[0] == '/') ){
-						// local value
-						if ( $this->scrape_params['importLocal'] ){
-							if($output!='HTML' ){
-								$atts.=' '.$attribute->name.'="<span class="green">'.$new_file_url.'</span>"';
-							}else{
-								$atts.=' '.$attribute->name.'="'.$new_file_url.'"';
-							}
-							$this->images_copy[$new_file_name]=array('source' => $attribute->value, 'destination' => $new_file_name);
-						}else{
-							$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
-						}
-					}else{
-						// remote value
-						if ( $this->scrape_params['importRemote'] ){
-							if($output!='HTML' ){
-								$atts.=' '.$attribute->name.'="<span class="green">'.$new_file_url.'</span>"';
-							}else{
-								$atts.=' '.$attribute->name.'="'.$new_file_url.'"';
-							}
-							$this->images_copy[$new_file_name]=array('source' => $attribute->value, 'destination' => $new_file_name);
-						}else{
-							$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
-						}	
-					}
-				}elseif ( ($this->scrape_params['replaceDomain'] == '1')&&($attribute->name == 'href' || $attribute->name == 'src') ){
-					// Replace Domain name with /
-					if($output!='HTML' ){
-						$atts.=' '.$attribute->name.'="'.str_replace($this->root,'<span class="red">'.$this->root.'</span>',$attribute->value).'"';
-					}else{
-						$atts.=' '.$attribute->name.'="'.str_replace($this->root,'',$attribute->value).'"';
-					}
-				}else{
-					$atts.=' '.$attribute->name.'="'.$attribute->value.'"';
-				}		
-			}
+			$atts=$this->process_attributes($node->attributes, $node->nodeName, $output);
 			if ( in_array($node->nodeName,$this->scrape_params['stripElements']) ){
 				$print_div=false;
 			}else{
@@ -584,7 +637,6 @@ class spider{
 			}
 			$this->proc_HTML.=$own_line.$new_line;
 			if ( substr($this->proc_HTML, $eol_length) == $new_line_chars ){$this->proc_HTML.=$this->proc_indent;}
-			// $this->proc_HTML.='('.$output.';'.substr($this->proc_HTML, $eol_length).','.$eol_length.','.$new_line.')';
 			if ( $print_div ){
 				$this->proc_HTML.=$start_tag.$node->nodeName.$atts.$self_closing_slash.$end_tag.$own_line;
 			}elseif($output!='HTML' ){
@@ -623,8 +675,8 @@ class spider{
 		libxml_use_internal_errors(true);
 		
 		$HTML = preg_replace('/[\x1-\x8\xB-\xC\xE-\x1F]/', '', $HTML);	// Word characters
-		if ( $this->php_version<5.4 ){$HTML=str_replace("&", "&amp;",$HTML);}	// Make the processor not see the html entities
-		$doc->loadHTML(mb_convert_encoding($HTML, 'HTML-ENTITIES', "UTF-8"));
+		if ( $this->php_version<5.4 ){$HTML=str_replace('&', '&amp;',$HTML);}	// Make the processor not see the html entities
+		$doc->loadHTML(mb_convert_encoding($HTML, 'HTML-ENTITIES', 'UTF-8'));
 		$error = libxml_get_last_error();
 		libxml_use_internal_errors(false);
 		libxml_clear_errors();
@@ -691,7 +743,7 @@ class spider{
 		if ($pos === false) {$pos = strpos($HTML, '<body');}
 		$HTML=substr($HTML,$pos+7);
 		$HTML=strip_tags( $HTML , '<div><section><article>');
-		// die($HTML);
+		if (trim($HTML) ==''){ return 'HTML page contains no content';}
 		$doc = new DOMDocument();
 		$doc->preserveWhiteSpace = false; 
 		$doc->substituteEntities = false;
@@ -725,10 +777,10 @@ class spider{
 			// print '#'.$page.';'.$this->depth.'#<br />';
 			$page_HTML =file_get_contents($page);
 			$this->scrape_page($page,$page_HTML);
-        
 			$this->depth++;
 			$next_crawl='';
 			$page_parts=parse_url($page);
+			if (!isset($page_parts['path'])){$page_parts['path']='/';}
 			$path_parts_info = pathinfo($page_parts['path']);
 
 			if ( $this->ignore_start or $this->ignore_end ){
@@ -804,7 +856,7 @@ class spider{
 						}elseif ( ($this->this_domain==true) && (isset($link_parts['host'])) && $link_parts['host']!=$root_parts['host'] ){
 							$valid_link=false;								
 						}elseif(!isset($link_parts['path'])){
-							print 'Invalid link????'.$link;
+							// print 'Invalid link '.$link;
 						}elseif(in_array($link_parts['path'],$this->exclude_crawl_page) ){
 							$valid_link=false;
 						}
@@ -900,6 +952,8 @@ class spider{
 									}else{
 										$this->output[$this->depth][] = $formatted_link;
 									}
+									print '<script>document.getElementById(\'loadingp\').innerHTML = "Spidering<br/>Page '.$this->spidered.'";</script>';
+									flush();
 								}
 								if ( $crawl && ($this->depth < $this->max_depth) ){
 									if ( $this->ensure_slash ){
@@ -933,7 +987,7 @@ class spider{
 	* @param array $url_list The original array from the spider
 	* @return array An array of all the links from the page
 	*/
-	function url_info( $url_list ){
+	function formatted_page_info( $url_list ){
 		$formatted= array();
 		array_walk_recursive($url_list, function($a) use (&$formatted) {$formatted[] = $a; });
 		sort($formatted);
