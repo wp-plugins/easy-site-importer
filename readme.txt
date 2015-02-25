@@ -1,6 +1,6 @@
 === Easy Site Importer ===
 Contributors: awfowler
-Donate link: https://werejuicy.com
+Donate link: http://werejuicy.com/donations/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: import, scrape, spider, copy, migrate, scraper, crawler
@@ -8,11 +8,11 @@ Requires at least: 3.8
 Tested up to: 4.1
 Stable tag: 1.0
 
-Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content from any other site.
+Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content easily
 
 == Description ==
 
-Easy site importer makes the process of migrating from any web site a much simpler, easy and less time consuming process.
+Easy site importer makes the process of migrating from any web site a much simpler, easy and a less time consuming process.
 Simply enter the URL of a site and Easy Site Importer will automatically scan the target website to find sections of the site which have content to be scraped.
 Specify which main HTML content block contains the main content for the site and if required an additional start and end string within this main content block.
 
@@ -21,7 +21,7 @@ Specify which main HTML content block contains the main content for the site and
 * Filter the html to remove inline CSS, Class, Span or Div tags
 * Identify and replace hard coded absolute URLs 
 * Import any images found into the media uploads directory and change the image tags 
-* Import SEO title and description tags into wordpress SEO YOAST plugin
+* Import SEO title and description tags into wordpress SEO YOAST, All in One SEO Pack and Add Meta plugin
 
 
 == Installation ==
@@ -33,9 +33,9 @@ Specify which main HTML content block contains the main content for the site and
 
 == Frequently Asked Questions ==
 
-= How do I spider more than 100 pages on a site =
-It is possible to increase this limit depending on how responsive the site is, and if your web server has its settings to not time out.
-Increase the limit setting within the spider_site function, You may need to increase the php execution time within php.ini or by adding the line set_time_limit(200); 
+= How do I spider more pages on a site =
+It is possible to increase this limit depending on how responsive the site is, and if your web server can deal with the extra execution time.
+Increase the limit setting within the class-site-importer-admin.php file, You may need to increase the php execution time within php.ini or by adding the line set_time_limit(200); 
 
 == Screenshots ==
 
@@ -48,6 +48,13 @@ Increase the limit setting within the spider_site function, You may need to incr
 
 == Changelog ==
 
-0.9.0
-
+= 0.9.0 =
 * Initial release.
+
+= 0.1.0 =
+Added Support for All in One SEO and Add Meta plugins
+Added Tutor
+Added option to import into a page or a post
+Visual tweaks
+Display of image results lists them within the titl
+
