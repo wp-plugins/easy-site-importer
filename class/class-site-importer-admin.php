@@ -535,7 +535,6 @@ class easy_site_importer{
 				if ( $removeString != ''){
 					if (strpos($removeString,',') !== false) {
 						$removeArray=explode(',',$removeString);
-						print_r($removeArray);
 						$post_name=str_replace($removeArray,'',$this->get_post_name($URL['URL']));
 					}else{
 						$post_name=str_replace($removeString,'',$this->get_post_name($URL['URL']));	
