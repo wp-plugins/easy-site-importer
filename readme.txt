@@ -58,3 +58,8 @@ Added option to import into a page or a post
 Visual tweaks
 Display of image results lists them within the titl
 
+= 0.1.0 =
+Fixed issue with constructor class doing to much work 
+Fixed issues with warning being displayed
+Add some more text to help explain error situations
+Added ability to remove text from the post/page name

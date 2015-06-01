@@ -394,14 +394,22 @@ class spider{
 	*/
 	function get_main_html_block( $page_HTML , $main_block, $page){
 		if ($page_HTML==''){
-			print 'Unable to find html for page ('.$page.')';
+			print 'Unable to find the HTML for page ('.$page.')';
+			return;
 		}
 		$page_HTML=preg_replace("<!--(?!<!)[^\[>].*?-->",'',$page_HTML);
 				
 		// Locate main html block
 		$pos=strpos($page_HTML,$main_block);
-		if (!$pos){$pos=strpos($page_HTML,str_replace('"',"'",$main_block));}
-		if (!$pos){ $this->error[] = array('type' =>'error', 'errno'=>'2', 'error' => '<b>ERROR</b> unable to find main html block specified('.strlen($page_HTML).')', 'page' => $page);}
+		if (!$pos){
+			$pos=strpos($page_HTML,str_replace('"',"'",$main_block));
+			if ($main_block=='<body>'){
+				$pos=strpos($page_HTML,'<body');
+			}
+			if (!$pos){ 
+				$this->error[] = array('type' =>'error', 'errno'=>'2', 'error' => '<b>ERROR</b> unable to find main html block specified '.htmlspecialchars($main_block).' page length =('.strlen($page_HTML).')', 'page' => $page);
+			}
+		}
 		$page_HTML=substr($page_HTML,$pos);
 		$elements=explode(' ',str_replace(array('<','>'),'',$main_block));
 		$element_type=$elements[0];
@@ -774,8 +782,9 @@ class spider{
 	*/
 	function crawl( $page, $next=false ){
 		if ( $this->spidered < $this->limit ){
-			// print '#'.$page.';'.$this->depth.'#<br />';
 			$page_HTML =file_get_contents($page);
+			// print '#'.$page.'size;'.strlen($page_HTML).';'.$this->depth.'#<br />'.$page_HTML.'xxxxx';
+			
 			$this->scrape_page($page,$page_HTML);
 			$this->depth++;
 			$next_crawl='';

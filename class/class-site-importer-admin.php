@@ -51,28 +51,6 @@ class easy_site_importer{
 	var $limit =  60;
 
 	function __construct() {
-		$URL=get_option('scrapeURL');
-		if ($URL != ''){
-			$path_parts=parse_url($URL);
-			if ($path_parts){
-				$this->domain=$path_parts['scheme'].'://'.$path_parts['host'];
-				$this->URL='';
-				if (isset($path_parts['path'])){$this->URL.=$path_parts['path'];}
-				if (isset($path_parts['query']) && $path_parts['query'] != ''){$this->URL.='?'.$path_parts['query'];}
-				if ( ! function_exists( 'request_filesystem_credentials' ) ){require_once( ABSPATH . 'wp-admin/includes/file.php' );}
-				/*$creds = request_filesystem_credentials($this->domain.$this->URL, '', true, false, null);
-				global $wp_filesystem;
-				WP_Filesystem();
-				$wp_filesystem->get_contents($this->domain.$this->URL);*/
-				$file_headers = @get_headers($this->domain.$this->URL);
-				if ((!$file_headers)||($file_headers[0] != 'HTTP/1.1 404 Not Found')) {
-					$this->HTML=file_get_contents($this->domain.$this->URL);
-					$spider=new spider($this->domain, $this->URL);
-					$spider->calculate_scrape_details($this->HTML);
-					$this->meta_structure=$spider->div_meta;
-				}				
-			}
-		}
 		global $wpdb;
 		$table=$wpdb->prefix . self::$db_table;
 		if( $wpdb->get_var( 'SHOW TABLES LIKE \''.$table.'\' ' ) == $table ) {
@@ -136,6 +114,29 @@ class easy_site_importer{
 	* Setup the settings fields for the form and in the database
 	*/
 	public function site_importer_init() {
+		$URL=get_option('scrapeURL');
+		if ($URL != ''){
+			$path_parts=parse_url($URL);
+			if ($path_parts){
+				$this->domain=$path_parts['scheme'].'://'.$path_parts['host'];
+				$this->URL='';
+				if (isset($path_parts['path'])){$this->URL.=$path_parts['path'];}
+				if (isset($path_parts['query']) && $path_parts['query'] != ''){$this->URL.='?'.$path_parts['query'];}
+				if ( ! function_exists( 'request_filesystem_credentials' ) ){require_once( ABSPATH . 'wp-admin/includes/file.php' );}
+				/*$creds = request_filesystem_credentials($this->domain.$this->URL, '', true, false, null);
+				global $wp_filesystem;
+				WP_Filesystem();
+				$wp_filesystem->get_contents($this->domain.$this->URL);*/
+				$file_headers = @get_headers($this->domain.$this->URL);
+				if ((!$file_headers)||($file_headers[0] != 'HTTP/1.1 404 Not Found')) {
+					$this->HTML=file_get_contents($this->domain.$this->URL);
+					$spider=new spider($this->domain, $this->URL);
+					$spider->calculate_scrape_details($this->HTML);
+					$this->meta_structure=$spider->div_meta;
+				}				
+			}
+		}
+		
 		
 		add_settings_section('scrape_url', 'Site crawler settings', array(&$this, 'site_url_details'), 'site_spider');  
 		// $extra='<input type="submit" value="Update HTML Blocks" class="button button-primary" id="submit2" name="submit" disabled="disabled"> &nbsp;'; // 'change' => 'document.getElementById(\'submit2\').disabled = false'
@@ -163,7 +164,8 @@ class easy_site_importer{
 		
 		add_settings_section('wordpress_settings', 'Wordpress Settings', false, 'site_importer');  
 		add_settings_field('postType', 'Import into post type', array(&$this, 'select_box'), 'site_importer', 'wordpress_settings', array( 'name' => 'postType', 'label_for' => 'Import into post type', 'options_name' => 'name', 'options' => array(array('name' => 'post')), 'default' => 'page', 'tutor' => 'Set the post type to import items into either the Posts or as Pages'));
-				
+		add_settings_field('postNameRemove', 'Remove string from name', array(&$this, 'text_field'), 'site_importer', 'wordpress_settings', array( 'name' => 'postNameRemove', 'label_for' => 'Remove string from name', 'options_name' => 'name', 'tutor' => 'This string will be removed from the created page or post name eg. index or index,blog,en-gb '));
+		
 		add_settings_section('image_settings', 'Image Settings', array(&$this, 'image_settings'), 'site_importer');  
 		add_settings_field('importLocal', 'Import images on spidering domain', array(&$this, 'checkbox_field'), 'site_importer', 'image_settings', array( 'name' => 'importLocal', 'label_for' => 'Import images on spidering domain', 'tutor' => 'Images held within the Website URL will be imported into the media library and the HTML will be changed to point to the new image'));
 		add_settings_field('importRemote', 'Import images on other domains', array(&$this, 'checkbox_field'), 'site_importer', 'image_settings', array( 'name' => 'importRemote', 'label_for' => 'Import remote images', 'tutor' => 'Images found on any domain apart from the main Website URL will be imported into the media library and the HTML will be changed to point to the new image'));
@@ -207,6 +209,7 @@ class easy_site_importer{
 		register_setting('site_importer', 'importRemote');
 		register_setting('site_importer', 'copyDuplicates');
 		register_setting('site_importer', 'postType');
+		register_setting('site_importer', 'postNameRemove');
 		register_setting('site_importer', 'importTitle');
 		register_setting('site_importer', 'importDescription');
 	}
@@ -496,7 +499,16 @@ class easy_site_importer{
 				}
 				print '<h3>Scraped HTML sample</h2><div id="formatted_html">'.$page['Formatted'].'</div>';
 			}else{
-				print '<div class="error"><p>Unable to display details for page '.$page['URL'].'- no results('.count($spider->formatted_output).')</p></div>';
+				print '<div class="error"><p>Unable to display details for page '.$this->domain.$this->URL.' no pages found('.count($spider->formatted_output).')<br/>';
+				print 'There are '.count($spider->error).' reported errors/warnings<br/>';
+				foreach($spider->error as $error){
+					if ($error['error']!=''){
+						print 'ERROR -'.$error['error'].'<br/>';
+					}else{
+						print '<b>'.$error['type'].'</b> - '. $error[0].'<br/>';
+					}
+				}
+				print '</p></div>';
 			}
 			
 		}else{
@@ -509,6 +521,7 @@ class easy_site_importer{
 			$wpdb->query('TRUNCATE '.$wpdb->prefix . self::$db_table);
 			$correct_pages='';
 			$post_type=get_option('postType');
+			$removeString=get_option('postNameRemove');
 			foreach($spider->formatted_output  as $page_URL => $URL){
 				$keywords='';
 				$description='';
@@ -518,7 +531,19 @@ class easy_site_importer{
 				if (isset($URL['description'])){$description=$URL['description'];}
 				if (isset($URL['Title'])){$title=$URL['Title'];}
 				if (isset($URL['Images'])){$images=serialize($URL['Images']);}
-				$post_name=$this->get_post_name($URL['URL']);				
+				
+				if ( $removeString != ''){
+					if (strpos($removeString,',') !== false) {
+						$removeArray=explode(',',$removeString);
+						print_r($removeArray);
+						$post_name=str_replace($removeArray,'',$this->get_post_name($URL['URL']));
+					}else{
+						$post_name=str_replace($removeString,'',$this->get_post_name($URL['URL']));	
+					}
+				}else{
+					$post_name=$this->get_post_name($URL['URL']);			
+				}
+				
 				$SQL='INSERT INTO `'.$wpdb->prefix . self::$db_table.'` ';
 				$SQL.='(`url`, `category`, `title`, `description`, `keywords`, `pre_text`, `post_text`, `display_text`, `images`, `post_name`, `post_type`) ';
 				$SQL.=' VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )';
@@ -586,6 +611,7 @@ class easy_site_importer{
 		}else{
 			$pages = get_posts(array('post_type'=>$post_type, 'post_status' => 'publish'));
 		}
+		$page_name=array();
 		foreach ( $pages as $page){
 			$version=substr($page->post_name, -2);
 			if (substr($page->post_name, -2, -1)=='-' && $page->post_title == substr($page->post_name, 0, -2) && is_numeric (substr($page->post_name, -1))){
