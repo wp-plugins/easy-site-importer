@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: import, scrape, spider, copy, migrate, scraper, crawler
 Requires at least: 3.8
 Tested up to: 4.1
-Stable tag: 1.0
+Stable tag: 1.0.1
 
 Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content easily
 
@@ -51,14 +51,14 @@ Increase the limit setting within the class-site-importer-admin.php file, You ma
 = 0.9.0 =
 * Initial release.
 
-= 0.1.0 =
+= 1.0.0 =
 Added Support for All in One SEO and Add Meta plugins
 Added Tutor
 Added option to import into a page or a post
 Visual tweaks
 Display of image results lists them within the titl
 
-= 0.1.1 =
+= 1.0.1 =
 Fixed issue with constructor class doing to much work 
 Fixed issues with warnings being displayed
 Add some more text to help explain error situations
