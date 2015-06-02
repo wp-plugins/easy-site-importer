@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Easy Site Importer
- * @version 1.0
+ * @version 1.0.1
  */
 /*
 Copyright 2015 Alex W Fowler  (email : alex@werejuicy.com)
