@@ -8,7 +8,7 @@ Plugin Name: Easy Site Importer
 Plugin URI: http://wordpress.org/plugins/easy-site-importer/
 Description: Easy Site Importer allows you to spider, scrape and copy content from another site making it the perfect migration tool for wordpress 
 Author: Alex W Fowler
-Version: 1.0
+Version: 1.0.1
 Author URI: http://werejuicy.com/
 
 Copyright 2015 Alex W Fowler  (email : alex@werejuicy.com)
