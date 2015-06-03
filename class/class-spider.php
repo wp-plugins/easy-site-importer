@@ -5,6 +5,10 @@
 * @version 1.0.2
 */
 
+function sortWords($a, $b) {
+	return $b['words'] - $a['words'];
+}
+
 class spider{	
 	/**
 	* @var string Domain root
@@ -764,11 +768,9 @@ class spider{
 		foreach($this->delete_keys as $key){
 			unset($this->div_meta[$key]);
 		}
-		if (version_compare(phpversion(), '5.3.1', '>')) {
-			usort($this->div_meta, function($a, $b) {
-		   		return $b['words'] - $a['words'];
-			});
-		}
+		
+		usort($this->div_meta, 'sortWords');
+		
 		if ( $error ){
 			return trim(htmlentities($error->message)). 'on line(' . $error->line . '),col(' . $error->column . ')';
 		}else{
