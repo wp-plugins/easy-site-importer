@@ -2,7 +2,7 @@
 /**
 * Class to Spider and scape a site
 * @package Site Importer
-* @version 1.0
+* @version 1.0.2
 */
 
 class spider{	
@@ -764,9 +764,11 @@ class spider{
 		foreach($this->delete_keys as $key){
 			unset($this->div_meta[$key]);
 		}
-		usort($this->div_meta, function($a, $b) {
-		    return $b['words'] - $a['words'];
-		});
+		if (version_compare(phpversion(), '5.3.1', '>')) {
+			usort($this->div_meta, function($a, $b) {
+		   		return $b['words'] - $a['words'];
+			});
+		}
 		if ( $error ){
 			return trim(htmlentities($error->message)). 'on line(' . $error->line . '),col(' . $error->column . ')';
 		}else{
