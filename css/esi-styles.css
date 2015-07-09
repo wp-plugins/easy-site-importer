@@ -82,7 +82,7 @@ a.disabled{
 	position:fixed;
 	right: 90px;
 	top: 110px;
-	background: #fff url("/wp-content/plugins/easy-site-importer/img/blackboard.png") no-repeat 0 0;
+	background: #000 url("../img/blackboard.png") no-repeat 0 0;
 	width: 170px;
 	height: 150px;
 	padding:  0 15px;
