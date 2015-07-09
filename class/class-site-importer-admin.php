@@ -502,7 +502,7 @@ class easy_site_importer{
 				print '<div class="error"><p>Unable to display details for page '.$this->domain.$this->URL.' no pages found('.count($spider->formatted_output).')<br/>';
 				print 'There are '.count($spider->error).' reported errors/warnings<br/>';
 				foreach($spider->error as $error){
-					if ($error['error']!=''){
+					if (isset($error['error']) && $error['error']!=''){
 						print 'ERROR -'.$error['error'].'<br/>';
 					}else{
 						print '<b>'.$error['type'].'</b> - '. $error[0].'<br/>';
