@@ -503,7 +503,11 @@ class easy_site_importer{
 				print 'There are '.count($spider->error).' reported errors/warnings<br/>';
 				foreach($spider->error as $error){
 					if (isset($error['error']) && $error['error']!=''){
-						print 'ERROR -'.$error['error'].'<br/>';
+						print 'ERROR - '.$error['error'];
+						if (isset($error['page'])){
+							print 'page('.$error['page'].')';
+						}
+						print '<br/>';
 					}else{
 						print '<b>'.$error['type'].'</b> - '. $error[0].'<br/>';
 					}
