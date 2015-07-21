@@ -5,7 +5,7 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: import, scrape, spider, copy, migrate, scraper, crawler
 Requires at least: 3.8
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: 1.0.1
 
 Easily copy and import content from any site by spidering, scraping and then processing the text, images and meta content easily
@@ -36,6 +36,12 @@ Specify which main HTML content block contains the main content for the site and
 = How do I spider more pages on a site =
 It is possible to increase this limit depending on how responsive the site is, and if your web server can deal with the extra execution time.
 Increase the limit setting within the class-site-importer-admin.php file, You may need to increase the php execution time within php.ini or by adding the line set_time_limit(200); 
+
+= I get the error 'unexpected T_FUNCTION' =
+This error is caused when using old versions of PHP which are less than version 5.3 and this plugin only works on versions of 5.3+.
+You are probably using version 5.2 or older of PHP which will be well over 4 years old and has now no longer supported by PHP http://php.net/eol.php.
+If you need to check your version of PHP you can try checking it by uploading the following code to the server <?php phpinfo(); ?>
+
 
 == Screenshots ==
 
