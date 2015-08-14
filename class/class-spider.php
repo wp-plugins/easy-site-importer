@@ -474,7 +474,7 @@ class spider{
 		}
 		
 		if ($scrape == ''){
-			$this->error[] = array('type' =>'error', 'errno'=>'1', 'error' => 'Error no valid html or 404 error page', 'page' => $page);
+			$this->error[] = array('type' =>'error', 'errno'=>'1', 'error' => 'Error no valid HTML has been scrapped or 404 error page', 'page' => $page);
 			return false;
 		}
 				
@@ -880,7 +880,8 @@ class spider{
 						
 						if ( $formatted_link[0]!='/' ){
 							if ( (substr($formatted_link, 0, 4)!='http') && (substr($formatted_link, 0, 3)!='www') ){
-								$formatted_link='/'.$formatted_link;	
+								$formatted_dir = ($path_parts_info['dirname'] == '/' ? '/' : $path_parts_info['dirname'].'/');
+								$formatted_link=$formatted_dir.$formatted_link;
 							}
 						}
 						if ( (strlen($formatted_link)>1) && substr($formatted_link,-1) == '/' ){
